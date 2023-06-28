@@ -11,10 +11,10 @@ It is a web app created for townships where residents can raise there complain t
 
 
 ## Screenshots
-<img alt="" src="/screenshots/ss1.jpg">
-<img alt="" src="/screenshots/ss2.jpg">
-<img alt="" src="/screenshots/ss3.jpg">
-<img alt="" src="/screenshots/ss4.jpg">
+<img alt="" src="/screenshots/ss1.jpg"/>
+<img alt="" src="/screenshots/ss2.jpg"/>
+<img alt="" src="/screenshots/ss3.jpg"/>
+<img alt="" src="/screenshots/ss4.jpg"/>
 
 
 ## Features
