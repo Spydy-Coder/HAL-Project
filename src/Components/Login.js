@@ -5,11 +5,9 @@ import { actionTypes } from "../reducer";
 import { useStateValue } from "../StateProvider";
 import db from "../firebase";
 import "./Login.css";
-// import useAuthState from 'react-firebase-hooks/auth';
 
 function Login() {
   const [{ user }, dispatch] = useStateValue();
-  // const {user1} = useAuthState(auth);
 
   const signIn = () => {
     auth
@@ -20,7 +18,8 @@ function Login() {
           user: result.user,
         });
         console.log("hello", result.user.displayName);
-        db.collection("Users").add({
+        const docref = db.collection("Users").doc(result.user.email);
+        docref.set({
           email: result.user.email,
           name: result.user.displayName,
         });
@@ -35,11 +34,11 @@ function Login() {
     <div className="login">
       <div className="login__container">
         <img
-          src="https://www.logo.wine/a/logo/WhatsApp/WhatsApp-Logo.wine.svg"
+          src="https://stories.jobaaj.com/files/manage/thumb/641bf7335dd8e.jpg"
           alt=""
         />
         <div className="login__text">
-          <h1>Sign in to WhatsApp</h1>
+          <h1>Sign in to Resolver</h1>
         </div>
         <Button onClick={signIn}>Sign In with Google</Button>
       </div>
