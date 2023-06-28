@@ -9,6 +9,14 @@ It is a web app created for townships where residents can raise there complain t
 
 [LIVE](https://hal-resolver.web.app/)
 
+
+## Screenshots
+
+[Image](/screenshots/ss1.jpg)
+[Image](/screenshots/ss2.jpg)
+[Image](/screenshots/ss3.jpg)
+[Image](/screenshots/ss4.jpg)
+
 ## Features
 
 - Progressive Web App (PWA)
