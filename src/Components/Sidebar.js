@@ -10,20 +10,20 @@ import { SearchOutlined } from "@material-ui/icons";
 import db, { auth } from "../firebase";
 import { useStateValue } from "../StateProvider";
 import { actionTypes } from "../reducer";
-import '@fortawesome/fontawesome-free/css/all.css';
+import "@fortawesome/fontawesome-free/css/all.css";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-
-
+import ConnectWithoutContactIcon from "@mui/icons-material/ConnectWithoutContact";
 
 function Sidebar({ hide }) {
-  const [rooms, setRooms] = useState([]);
+  const currentUser = auth.currentUser.email;
+  const [users, setUsers] = useState([]);
   const [{ user }, dispatch] = useStateValue();
   const [search, setSearch] = useState("");
   const [showdropdown, setDropdown] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = db.collection("Rooms").onSnapshot((snapshot) =>
-      setRooms(
+    const unsubscribe = db.collection("Users").onSnapshot((snapshot) =>
+      setUsers(
         snapshot.docs.map((doc) => ({
           id: doc.id,
           data: doc.data(),
@@ -58,7 +58,7 @@ function Sidebar({ hide }) {
       db.collection("Rooms").add({
         name: roomName,
       });
-      console.log("executed")
+      console.log("executed");
     }
   };
 
@@ -70,21 +70,23 @@ function Sidebar({ hide }) {
           <h2>Resolver</h2>
         </div>
         <div className="sidebar__headerRight">
-          <IconButton className="icon"
+          <IconButton
+            className="icon"
             onClick={() =>
               alert(
                 "Not added this functionality.\nClick on three dots to logout and add new room."
               )
             }
           >
-          <DonutLargeIcon style={{ color: "white" }}/>
+            <DonutLargeIcon style={{ color: "white" }} />
           </IconButton>
           <IconButton>
             <ChatIcon style={{ color: "white" }} />
           </IconButton>
           <ClickAwayListener onClickAway={() => setDropdown(false)}>
             <div className="dropdown">
-              <IconButton style={{ color: "white" }}
+              <IconButton
+                style={{ color: "white" }}
                 onClick={() => {
                   setDropdown(!showdropdown);
                 }}
@@ -115,18 +117,19 @@ function Sidebar({ hide }) {
         </div>
       </div>
       <div class="navbar">
-  
-  <div class="navbar__contacts">
-    <i class="fa fa-user"></i>
-    <span>Chats</span>
-  </div>
-  <Link to={'/rooms/fOGRT7qri0WGi60RDSQP'}>
-  <div class="navbar__status">
-    <i class="fa fa-camera"></i>
-    <span>Status</span>
-  </div>
-  </Link>
-</div>
+        <Link to={"/"}>
+          <div class="navbar__contacts">
+            <i class="fa fa-user"></i>
+            <span>Chats</span>
+          </div>
+        </Link>
+        <Link to={"/rooms/BroadCast/random@gmail.com"}>
+          <div class="navbar__status">
+            <i class="fa fa-bullhorn"></i>
+            <span>BroadCast</span>
+          </div>
+        </Link>
+      </div>
       <div className="sidebar__search">
         <div className="sidebar__searchContainer">
           <SearchOutlined />
@@ -142,15 +145,21 @@ function Sidebar({ hide }) {
       </div>
       <div className="sidebar__chats">
         <SidebarChat addNewChat={true} />
-        {rooms.map((room) => {
+        {users.map((user_temp) => {
           if (
-            room.data.name.toLowerCase().includes(search.toLowerCase()) ||
-            search === ""
+            (user_temp.data.name.toLowerCase().includes(search.toLowerCase()) ||
+              search === "") &&
+            user_temp.data.email != currentUser
           ) {
             return (
-              <SidebarChat key={room.id} id={room.id} name={room.data.name} />
+              <SidebarChat
+                key={user_temp.id}
+                id={user_temp.id}
+                name={user_temp.data.name}
+              />
             );
           }
+
           return <></>;
         })}
       </div>
