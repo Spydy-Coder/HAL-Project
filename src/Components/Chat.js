@@ -18,7 +18,10 @@ function Chat({ hide, removeRoom }) {
   const [{ user }, dispatch] = useStateValue();
   const [seed, setSeed] = useState("");
   const [input, setInput] = useState("");
-  const { roomId } = useParams();
+  const { roomId, receiver } = useParams();
+  // roomId contains the collection which contain all the chats between two parties
+  // there will be sender and receiver so we create two unique ids and check which is there in the database
+  // roomId contains the unique id which stores all the messages
   const [roomName, setRoomName] = useState("");
   const [messages, setMessages] = useState([]);
   const [showdropdown, setDropdown] = useState(false);
@@ -27,14 +30,15 @@ function Chat({ hide, removeRoom }) {
     setDropdown(false);
     setSeed(Math.floor(Math.random() * 50000));
     if (roomId) {
-      db.collection("Rooms")
-        .doc(roomId)
+      db.collection("Users")
+        .doc(receiver)
         .onSnapshot((snapshot) => {
           if (snapshot.data()) {
             setRoomName(snapshot.data().name);
           }
+          console.log("snapshot:", snapshot.data());
         });
-      db.collection("Rooms")
+      db.collection("Messages")
         .doc(roomId)
         .collection("messages")
         .orderBy("timestamp", "asc")
@@ -55,10 +59,12 @@ function Chat({ hide, removeRoom }) {
   const sendMessage = (e) => {
     e.preventDefault();
     if (input) {
-      db.collection("Rooms").doc(roomId).collection("messages").add({
+      // console.log("user name:",user.displayName);
+      db.collection("Messages").doc(roomId).collection("messages").add({
         message: input,
-        name: user.displayName,
-        email: user.email,
+        sender: user.email,
+        receiver: receiver,
+        sender_name: user.displayName,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       });
       setInput("");
@@ -74,7 +80,7 @@ function Chat({ hide, removeRoom }) {
             <ArrowBack />
           </IconButton>
         </Link>
-        <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
+        <Avatar src={`you can add here`} />
         <div className="chat__headerInfo">
           <h3>{roomName}</h3>
           <p>
@@ -134,7 +140,7 @@ function Chat({ hide, removeRoom }) {
           <div key={message.timestamp}>
             <p
               className={`chat__message ${
-                message.email === user.email && "chat__receiver"
+                message.receiver === receiver && "chat__receiver"
               }`}
             >
               <span className="chat__name">{message.name}</span>
