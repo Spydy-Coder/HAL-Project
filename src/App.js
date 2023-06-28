@@ -58,16 +58,16 @@ function App() {
                 <Chat hide={true} removeRoom={removeRoom} />
                 <div className="project__info">
                   <img
-                    src="https://www.logo.wine/a/logo/WhatsApp/WhatsApp-Logo.wine.svg"
+                    src="https://stories.jobaaj.com/files/manage/thumb/641bf7335dd8e.jpg"
                     alt=""
                   />
                   <div className="text">
-                    <h1>WhatsApp Web Clone</h1>
+                    <h1>Resolver</h1>
                     {/* <p>- By Piyush Sati</p> */}
                   </div>
                 </div>
               </Route>
-              <Route path="/rooms/:roomId">
+              <Route path="/rooms/:roomId/:receiver">
                 <Sidebar hide={true} />
                 <Chat hide={false} removeRoom={removeRoom} />
               </Route>
