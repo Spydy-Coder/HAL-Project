@@ -13,16 +13,40 @@ function Login() {
     auth
       .signInWithPopup(provider)
       .then((result) => {
-        dispatch({
-          type: actionTypes.SET_USER,
-          user: result.user,
-        });
-        console.log("hello", result.user.displayName);
-        const docref = db.collection("Users").doc(result.user.email);
-        docref.set({
-          email: result.user.email,
-          name: result.user.displayName,
-        });
+        // checking whether it is a admin or not
+        const documentRef = db.collection("Admins").doc(result.user.email);
+        documentRef
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              // Document exists
+              const data = doc.data();
+              dispatch({
+                type: actionTypes.SET_USER,
+                user: result.user,
+                role: "admin",
+              });
+              console.log(data);
+            } else {
+              // Document does not exist
+              console.log("Document does not exist");
+              dispatch({
+                type: actionTypes.SET_USER,
+                user: result.user,
+                role: "user",
+              });
+              console.log("hello", result.user.displayName);
+              const docref = db.collection("Users").doc(result.user.email);
+              docref.set({
+                email: result.user.email,
+                name: result.user.displayName,
+              });
+            }
+          })
+          .catch((error) => {
+            console.log("Error getting document:", error);
+          });
+
         // we want email and his name and we store it in the database
         //localStorage.setItem("user", JSON.stringify(result.user));
       })

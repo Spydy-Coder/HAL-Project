@@ -4,7 +4,6 @@ import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import "./Sidebar.css";
-import green from "@material-ui/core/colors/green";
 import SidebarChat from "./SidebarChat";
 import { SearchOutlined } from "@material-ui/icons";
 import db, { auth } from "../firebase";
@@ -12,29 +11,43 @@ import { useStateValue } from "../StateProvider";
 import { actionTypes } from "../reducer";
 import "@fortawesome/fontawesome-free/css/all.css";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-import ConnectWithoutContactIcon from "@mui/icons-material/ConnectWithoutContact";
+
 
 function Sidebar({ hide }) {
   const currentUser = auth.currentUser.email;
   const [users, setUsers] = useState([]);
-  const [{ user }, dispatch] = useStateValue();
+  const [{ role, user }, dispatch] = useStateValue();
+  // const [{ role }, dispatch] = useStateValue();
+
   const [search, setSearch] = useState("");
   const [showdropdown, setDropdown] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = db.collection("Users").onSnapshot((snapshot) =>
-      setUsers(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          data: doc.data(),
-        }))
-      )
-    );
+    let unsubscribe;
+    if (role === "admin") {
+      unsubscribe = db.collection("Users").onSnapshot((snapshot) =>
+        setUsers(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        )
+      );
+    } else {
+      unsubscribe = db.collection("Admins").onSnapshot((snapshot) =>
+        setUsers(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        )
+      );
+    }
 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [role]);
 
   const signOut = () => {
     auth

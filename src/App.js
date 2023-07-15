@@ -19,14 +19,34 @@ function App() {
     const listener = auth.onAuthStateChanged((authUser) => {
       setLoading(false);
       if (authUser) {
-        dispatch({
-          type: actionTypes.SET_USER,
-          user: authUser,
-        });
+        const documentRef = db.collection("Admins").doc(authUser.email);
+        documentRef
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              // Document exists
+              dispatch({
+                type: actionTypes.SET_USER,
+                user: authUser,
+                role: "admin",
+              });
+            } else {
+              // Document does not exist
+              dispatch({
+                type: actionTypes.SET_USER,
+                user: authUser,
+                role: "user",
+              });
+            }
+          })
+          .catch((error) => {
+            console.log("Error getting document:", error);
+          });
       } else {
         dispatch({
           type: actionTypes.SET_USER,
           user: null,
+          role: null,
         });
       }
     });
@@ -63,7 +83,6 @@ function App() {
                   />
                   <div className="text">
                     <h1>Resolver</h1>
-                    {/* <p>- By Piyush Sati</p> */}
                   </div>
                 </div>
               </Route>
