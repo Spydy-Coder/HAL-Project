@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, ClickAwayListener, IconButton } from "@material-ui/core";
+import { useStateValue } from "../StateProvider";
+import PopupForm from "./popupform";
 import "./Chat.css";
 import {
   AttachFile,
@@ -9,16 +11,18 @@ import {
   SearchOutlined,
   ArrowBack,
 } from "@material-ui/icons";
+import { ReportProblem } from "@material-ui/icons";
 import { Link, useParams } from "react-router-dom/cjs/react-router-dom.min";
 import db from "../firebase";
-import { useStateValue } from "../StateProvider";
+// import { useStateValue } from "../StateProvider";
 import firebase from "firebase";
 
 function Chat({ hide, removeRoom }) {
-  const [{ user }, dispatch] = useStateValue();
+  const [{ user, role }, dispatch] = useStateValue();
   const [seed, setSeed] = useState("");
   const [input, setInput] = useState("");
   const { roomId, receiver } = useParams();
+  const [showPopupForm, setPopupForm] = useState(false);
   // roomId contains the collection which contain all the chats between two parties
   // there will be sender and receiver so we create two unique ids and check which is there in the database
   // roomId contains the unique id which stores all the messages
@@ -29,8 +33,11 @@ function Chat({ hide, removeRoom }) {
   useEffect(() => {
     setDropdown(false);
     setSeed(Math.floor(Math.random() * 50000));
+
     if (roomId) {
-      db.collection("Users")
+      const search = role === "admin" ? "Users" : "Admins";
+      console.log("search", search);
+      db.collection(search)
         .doc(receiver)
         .onSnapshot((snapshot) => {
           if (snapshot.data()) {
@@ -55,6 +62,19 @@ function Chat({ hide, removeRoom }) {
   useEffect(() => {
     setSeed(Math.floor(Math.random() * 50000));
   }, []);
+
+  const complaint = (inputmsg) => {
+    if (inputmsg) {
+      db.collection("Messages").doc(roomId).collection("messages").add({
+        message: inputmsg,
+        sender: user.email,
+        receiver: receiver,
+        sender_name: user.displayName,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      setInput("");
+    }
+  };
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -145,6 +165,7 @@ function Chat({ hide, removeRoom }) {
             >
               <span className="chat__name">{message.name}</span>
               {message.message}
+
               <span className="chat__timestamp">
                 {new Date(message.timestamp?.toDate()).toUTCString()}
               </span>
@@ -154,23 +175,14 @@ function Chat({ hide, removeRoom }) {
       </div>
       <div className="chat__footer">
         <IconButton
-          onClick={() =>
-            alert(
-              "Not added this functionality.\nClick on three dots on top right to delete room."
-            )
-          }
-        >
-          <InsertEmoticon />
-        </IconButton>
-        <IconButton
           className="attach__file"
-          onClick={() =>
-            alert(
-              "Not added this functionality.\nClick on three dots on top right to delete room."
-            )
-          }
+          onClick={() => {
+            console.log("jy");
+            console.log(showPopupForm);
+            setPopupForm(true);
+          }}
         >
-          <AttachFile />
+          <ReportProblem />
         </IconButton>
         <form>
           <input
@@ -194,6 +206,13 @@ function Chat({ hide, removeRoom }) {
           <Mic />
         </IconButton>
       </div>
+      {showPopupForm && (
+        <PopupForm
+          open={true}
+          closePopup={() => setPopupForm(false)}
+          func={complaint}
+        />
+      )}
     </div>
   );
 }
